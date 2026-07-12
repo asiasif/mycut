@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antigravity Cut - Premium Web Video Editor</title>
+  <!-- SEO & Meta -->
+  <meta name="description" content="A premium web-based video editor with multi-track timelines, filters, transitions, text overlays, and audio mix exports.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App Wrapper -->
+  <!-- Global Loading Overlay -->
+  <div id="canvas-loader" class="canvas-loader hidden">
+    <div class="canvas-loader-inner">
+      <div class="loader-spinner"></div>
+      <span>Loading...</span>
+    </div>
+  </div>
+
+  <div id="app-container">
+    
+    <!-- Top Header -->
+    <header class="editor-header">
+      <div class="header-logo">
+        <div class="logo-icon">
+          <i data-lucide="video"></i>
+        </div>
+        <span class="logo-text">Antigravity<span>Cut</span></span>
+      </div>
+      
+      <div class="header-center">
+        <div class="aspect-ratio-selector">
+          <label for="aspect-ratio-select">Ratio:</label>
+          <select id="aspect-ratio-select" class="theme-select">
+            <option value="16:9" selected>16:9 (Landscape)</option>
+            <option value="9:16">9:16 (TikTok/Reel)</option>
+            <option value="1:1">1:1 (Square)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <button id="export-btn" class="btn btn-primary">
+          <i data-lucide="download"></i>
+          <span>Export Video</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="editor-workspace">
+      
+      <!-- Left Navigation Sidebar -->
+      <aside class="sidebar-tabs">
+        <button class="tab-btn active" data-tab="media" title="Media Assets">
+          <i data-lucide="folder-open"></i>
+          <span>Media</span>
+        </button>
+        <button class="tab-btn" data-tab="text" title="Text Overlays">
+          <i data-lucide="type"></i>
+          <span>Text</span>
+        </button>
+        <button class="tab-btn" data-tab="filters" title="Video Filters">
+          <i data-lucide="sliders"></i>
+          <span>Filters</span>
+        </button>
+        <button class="tab-btn" data-tab="stickers" title="Stickers & Emojis">
+          <i data-lucide="smile"></i>
+          <span>Stickers</span>
+        </button>
+        <button class="tab-btn" data-tab="transitions" title="Transitions">
+          <i data-lucide="blend"></i>
+          <span>Transitions</span>
+        </button>
+        <button class="tab-btn" data-tab="audio" title="Audio Tracks">
+          <i data-lucide="music"></i>
+          <span>Audio</span>
+        </button>
+        <button class="tab-btn" data-tab="ai" title="AI Smart Cut">
+          <i data-lucide="wand-2"></i>
+          <span>AI Cut</span>
+        </button>
+        <button class="tab-btn" data-tab="projects" title="Cloud Projects">
+          <i data-lucide="cloud"></i>
+          <span>Cloud</span>
+        </button>
+      </aside>
+
+      <!-- Left Assets Drawer Panel -->
+      <section class="assets-drawer">
+        <button id="mobile-assets-close" class="mobile-close-btn" title="Close"><i data-lucide="x"></i></button>
+        <!-- Media Drawer Content -->
+        <div id="drawer-media" class="drawer-content active">
+          <h3>Media Library</h3>
+          <div class="upload-area">
+            <input type="file" id="media-upload-input" accept="video/*,image/*" multiple hidden>
+            <label for="media-upload-input" class="upload-label">
+              <i data-lucide="upload-cloud"></i>
+              <span>Upload Video / Image</span>
+              <span class="subtext">Supports MP4, WebM, MOV, PNG, JPG</span>
+            </label>
+          </div>
+          <div class="assets-section">
+            <h4>Sample Assets</h4>
+            <div id="sample-assets-list" class="assets-grid">
+              <!-- Dynamically populated sample assets -->
+            </div>
+          </div>
+          <div class="assets-section">
+            <h4>Your Uploads</h4>
+            <div id="uploaded-assets-list" class="assets-grid">
+              <div class="empty-assets-text">No uploads yet. Upload files to start editing.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Drawer Content -->
+        <div id="drawer-text" class="drawer-content">
+          <h3>Add Text</h3>
+          <div class="text-presets-list">
+            <button class="text-preset-btn" data-text-type="heading">
+              <span class="title">Heading</span>
+              <span class="subtitle">Bold header text</span>
+            </button>
+            <button class="text-preset-btn" data-text-type="subheading">
+              <span class="title">Subheading</span>
+              <span class="subtitle">Medium caption text</span>
+            </button>
+            <button class="text-preset-btn" data-text-type="body">
+              <span class="title">Body Text</span>
+              <span class="subtitle">Standard paragraph text</span>
+            </button>
+          </div>
+          
+          <div class="assets-section">
+            <h4>Stylized Texts</h4>
+            <div class="styled-text-grid">
+              <button class="styled-text-btn style-neon" data-style-preset="neon">NEON GLOW</button>
+              <button class="styled-text-btn style-retro" data-style-preset="retro">RETRO SHADOW</button>
+              <button class="styled-text-btn style-cyber" data-style-preset="cyber">CYBER PUNK</button>
+              <button class="styled-text-btn style-outline" data-style-preset="outline">OUTLINED</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters Drawer Content -->
+        <div id="drawer-filters" class="drawer-content">
+          <h3>Filters</h3>
+          <div id="filters-list" class="filters-grid">
+            <!-- Dynamically populated filter templates -->
+          </div>
+        </div>
+
+        <!-- Stickers Drawer Content -->
+        <div id="drawer-stickers" class="drawer-content">
+          <h3>Stickers</h3>
+          <div id="stickers-list" class="stickers-grid">
+            <!-- Emojis & Custom vector/image stickers -->
+          </div>
+        </div>
+
+        <!-- Transitions Drawer Content -->
+        <div id="drawer-transitions" class="drawer-content">
+          <h3>Transitions</h3>
+          <p class="drawer-info">Select a clip, then choose a transition to apply to its start.</p>
+          <div id="transitions-list" class="transitions-grid">
+            <!-- Dynamically populated transitions -->
+          </div>
+        </div>
+
+        <!-- Audio Drawer Content -->
+        <div id="drawer-audio" class="drawer-content">
+          <h3>Background Audio</h3>
+          <div class="upload-area">
+            <input type="file" id="audio-upload-input" accept="audio/*" multiple hidden>
+            <label for="audio-upload-input" class="upload-label">
+              <i data-lucide="music-4"></i>
+              <span>Upload Custom Audio</span>
+              <span class="subtext" style="font-size: 9px; color: var(--text-muted); margin-top: 4px;">Supports MP3, WAV, M4A, OGG</span>
+            </label>
+          </div>
+          <div class="assets-section">
+            <h4>Soundtracks</h4>
+            <div id="audio-assets-list" class="audio-list">
+              <!-- Dynamically populated royalty-free audio soundtracks -->
+          </div>
+        </div>
+
+        <!-- AI Tools Drawer Content -->
+        <div id="drawer-ai" class="drawer-content">
+          <h3>AI Smart Cut</h3>
+          <p class="drawer-info">Enter an editing prompt to automatically slice your video/audio clips on the timeline.</p>
+          
+          <div class="property-row vertical" style="margin-bottom: 12px; align-items: stretch; width: 100%;">
+            <label for="ai-prompt-input" style="font-size: 11px; margin-bottom: 4px; display: block; color: var(--text-muted); text-align: left;">AI Prompt Command:</label>
+            <textarea id="ai-prompt-input" class="theme-textarea" rows="4" placeholder='e.g., add "synthwave" as a background&#10;     insert Cyber Countdown at 5s&#10;     split every 30 seconds'></textarea>
+          </div>
+          
+          <button id="btn-execute-ai" class="btn btn-primary btn-full" style="margin-bottom: 16px;">
+            <i data-lucide="sparkles"></i>
+            <span>Execute AI Cut</span>
+          </button>
+          
+          <div class="assets-section">
+            <h4>Quick Suggestions</h4>
+            <div class="text-presets-list" style="margin-top: 8px;">
+              <button class="text-preset-btn ai-sugg-btn" data-prompt='add "malayalam film" as a background'>
+                <span class="title">🎵 Malayalam BG</span>
+                <span class="subtitle">Add Malayalam film songs</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt='add "hindi bollywood" as a background'>
+                <span class="title">🎵 Hindi/Bollywood BG</span>
+                <span class="subtitle">Add Hindi film music</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt='add "tamil film songs" as a background'>
+                <span class="title">🎵 Tamil BG</span>
+                <span class="subtitle">Add Tamil film songs</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt='add "classical" as a background'>
+                <span class="title">🎻 Classical BG</span>
+                <span class="subtitle">Add classical music</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt="create a video from my clips">
+                <span class="title">🎬 Auto Edit</span>
+                <span class="subtitle">Auto-arrange all uploaded clips</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt="add overlay at bottom-right">
+                <span class="title">🖼️ Add Overlay</span>
+                <span class="subtitle">Add PiP overlay from upload</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt='add "synthwave" as a background'>
+                <span class="title">🎵 Synthwave BG</span>
+                <span class="subtitle">Add synthwave music as background</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt='add "jazz" as a background'>
+                <span class="title">🎺 Jazz BG</span>
+                <span class="subtitle">Add jazz music as background</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt='add "lofi hip hop" as a background'>
+                <span class="title">🎧 Lo-Fi BG</span>
+                <span class="subtitle">Add lo-fi hip hop as background</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt="split into 1 minute clips">
+                <span class="title">1-Minute Clips</span>
+                <span class="subtitle">Cut clip into 60s intervals</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt="split every 30 seconds">
+                <span class="title">30-Second Clips</span>
+                <span class="subtitle">Cut clip into 30s intervals</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt="split every 10 seconds">
+                <span class="title">10-Second Clips</span>
+                <span class="subtitle">Cut clip into 10s intervals</span>
+              </button>
+              <button class="text-preset-btn ai-sugg-btn" data-prompt="cut at 5s, 10s, 15s">
+                <span class="title">Specific Timestamps</span>
+                <span class="subtitle">Cut at 5s, 10s, and 15s</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects Drawer Content -->
+        <div id="drawer-projects" class="drawer-content">
+          <h3>Cloud Projects</h3>
+          <p class="drawer-info">Save your timeline changes and load them from the cloud database.</p>
+          
+          <div class="upload-area" style="border: 1px dashed var(--border-light); padding: 16px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(255, 255, 255, 0.01);">
+            <div style="font-size: 11px; color: var(--text-muted); text-align: left;">Save Current Project:</div>
+            <input type="text" id="project-name-input" class="theme-textarea" style="height: 32px; padding: 6px;" placeholder="e.g. My Epic Cut">
+            <button id="btn-save-project" class="btn btn-primary btn-full">
+              <i data-lucide="cloud-lightning"></i>
+              <span>Save to Firestore</span>
+            </button>
+          </div>
+
+          <div class="assets-section">
+            <h4>Saved Projects</h4>
+            <div id="firebase-projects-list" class="audio-list">
+              <div class="empty-assets-text" id="db-loading-text">Connecting to Firebase...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Player Preview Panel -->
+      <section class="player-panel">
+        <div class="player-canvas-container">
+          <div class="player-canvas-wrapper" id="canvas-wrapper">
+            <!-- Aspect Ratio guided bounding boxes -->
+            <canvas id="editor-canvas" width="1280" height="720"></canvas>
+            
+            <!-- Loading and rendering placeholder indicators -->
+            <div id="canvas-loader" class="canvas-overlay-loader hidden">
+              <div class="loader-spinner"></div>
+              <span>Processing frame...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Navigation / Timeline Scrub Controls -->
+        <div class="player-controls">
+          <div class="timecode-display">
+            <span id="current-timecode">00:00.00</span>
+            <span class="divider">/</span>
+            <span id="total-timecode">00:05.00</span>
+          </div>
+
+          <div class="control-buttons">
+            <button id="btn-prev-frame" class="control-btn" title="Previous Frame (Left Arrow)">
+              <i data-lucide="skip-back"></i>
+            </button>
+            <button id="btn-play-pause" class="control-btn play-btn" title="Play / Pause (Spacebar)">
+              <i data-lucide="play" class="play-icon"></i>
+              <i data-lucide="pause" class="pause-icon hidden"></i>
+            </button>
+            <button id="btn-stop" class="control-btn" title="Stop">
+              <i data-lucide="square"></i>
+            </button>
+            <button id="btn-next-frame" class="control-btn" title="Next Frame (Right Arrow)">
+              <i data-lucide="skip-forward"></i>
+            </button>
+          </div>
+
+          <div class="volume-control">
+            <button id="btn-mute" class="control-btn" title="Mute">
+              <i data-lucide="volume-2" class="vol-on"></i>
+              <i data-lucide="volume-x" class="vol-off hidden"></i>
+            </button>
+            <input type="range" id="volume-slider" min="0" max="100" value="80" class="theme-slider">
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Inspector Panel (Properties Adjustment) -->
+      <aside class="inspector-panel">
+        <button id="mobile-inspector-close" class="mobile-close-btn" title="Close"><i data-lucide="x"></i></button>
+        <div class="inspector-header">
+          <h3>Inspector</h3>
+        </div>
+        
+        <!-- Inspector Context States -->
+        <div id="inspector-empty" class="inspector-content active">
+          <div class="empty-state">
+            <i data-lucide="info"></i>
+            <p>Select a clip in the timeline to edit its properties.</p>
+          </div>
+        </div>
+
+        <div id="inspector-clip" class="inspector-content">
+          <!-- Dynamic Header -->
+          <div class="clip-info-header">
+            <span id="inspect-clip-type" class="badge">Video</span>
+            <h4 id="inspect-clip-name">my_video.mp4</h4>
+          </div>
+
+          <!-- Tabs inside Inspector for Video/Image/Text/Audio context -->
+          <div class="property-groups-wrapper">
+            
+            <!-- Video/Image specific transforms -->
+            <div id="group-transform" class="property-group">
+              <h5>Transform</h5>
+              <div class="property-row">
+                <label>Position X</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-pos-x" min="-1280" max="1280" value="0" class="theme-slider">
+                  <span id="val-pos-x" class="slider-val">0px</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label>Position Y</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-pos-y" min="-720" max="720" value="0" class="theme-slider">
+                  <span id="val-pos-y" class="slider-val">0px</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label>Scale</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-scale" min="10" max="500" value="100" class="theme-slider">
+                  <span id="val-scale" class="slider-val">100%</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label>Rotation</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-rotation" min="0" max="360" value="0" class="theme-slider">
+                  <span id="val-rotation" class="slider-val">0°</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label>Opacity</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-opacity" min="0" max="100" value="100" class="theme-slider">
+                  <span id="val-opacity" class="slider-val">100%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Text formatting adjustments (Visible only for TEXT type) -->
+            <div id="group-text" class="property-group">
+              <h5>Text Content</h5>
+              <div class="property-row vertical">
+                <label for="prop-text-val">Content</label>
+                <textarea id="prop-text-val" class="theme-textarea" rows="3">Hello World</textarea>
+              </div>
+              <div class="property-row">
+                <label for="prop-font-family">Font Family</label>
+                <select id="prop-font-family" class="theme-select">
+                  <option value="Inter">Inter (Sans)</option>
+                  <option value="Outfit">Outfit (Modern)</option>
+                  <option value="Impact">Impact (Meme)</option>
+                  <option value="Courier New">Courier (Monospace)</option>
+                  <option value="Georgia">Georgia (Serif)</option>
+                </select>
+              </div>
+              <div class="property-row">
+                <label>Font Size</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-font-size" min="12" max="150" value="48" class="theme-slider">
+                  <span id="val-font-size" class="slider-val">48px</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label for="prop-font-color">Text Color</label>
+                <input type="color" id="prop-font-color" value="#ffffff" class="theme-color">
+              </div>
+              <div class="property-row">
+                <label for="prop-text-stroke">Text Stroke</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-text-stroke" min="0" max="15" value="0" class="theme-slider">
+                  <span id="val-text-stroke" class="slider-val">0px</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label for="prop-text-stroke-color">Stroke Color</label>
+                <input type="color" id="prop-text-stroke-color" value="#000000" class="theme-color">
+              </div>
+              <div class="property-row">
+                <label>Alignment</label>
+                <div class="align-btn-group">
+                  <button class="align-btn" data-align="left" title="Align Left"><i data-lucide="align-left"></i></button>
+                  <button class="align-btn active" data-align="center" title="Align Center"><i data-lucide="align-center"></i></button>
+                  <button class="align-btn" data-align="right" title="Align Right"><i data-lucide="align-right"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filters adjustment (Visible for video/images) -->
+            <div id="group-filters" class="property-group">
+              <h5>Custom Filters</h5>
+              <div class="property-row">
+                <label>Brightness</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-filter-brightness" min="0" max="200" value="100" class="theme-slider">
+                  <span id="val-filter-brightness" class="slider-val">100%</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label>Contrast</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-filter-contrast" min="0" max="200" value="100" class="theme-slider">
+                  <span id="val-filter-contrast" class="slider-val">100%</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label>Saturation</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-filter-saturation" min="0" max="200" value="100" class="theme-slider">
+                  <span id="val-filter-saturation" class="slider-val">100%</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label>Sepia</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-filter-sepia" min="0" max="100" value="0" class="theme-slider">
+                  <span id="val-filter-sepia" class="slider-val">0%</span>
+                </div>
+              </div>
+              <div class="property-row">
+                <label>Blur</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-filter-blur" min="0" max="50" value="0" class="theme-slider">
+                  <span id="val-filter-blur" class="slider-val">0px</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Audio volume (Visible for Audio/Video elements) -->
+            <div id="group-audio" class="property-group">
+              <h5>Audio Settings</h5>
+              <div class="property-row">
+                <label>Volume</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-audio-vol" min="0" max="200" value="100" class="theme-slider">
+                  <span id="val-audio-vol" class="slider-val">100%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transition settings (Visible for elements that support transitions) -->
+            <div id="group-transition" class="property-group">
+              <h5>Transition</h5>
+              <div class="property-row">
+                <label for="prop-transition-type">Effect</label>
+                <select id="prop-transition-type" class="theme-select">
+                  <option value="none">None</option>
+                  <option value="fade">Cross Fade</option>
+                  <option value="fadeblack">Fade to Black</option>
+                  <option value="slideleft">Slide Left</option>
+                  <option value="slideright">Slide Right</option>
+                  <option value="zoomin">Zoom In</option>
+                </select>
+              </div>
+              <div class="property-row">
+                <label>Duration</label>
+                <div class="slider-input-group">
+                  <input type="range" id="prop-transition-dur" min="1" max="50" value="10" class="theme-slider">
+                  <span id="val-transition-dur" class="slider-val">1.0s</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Timing adjustments -->
+            <div class="property-group">
+              <h5>Clip Timing</h5>
+              <div class="property-row">
+                <label>Start Time</label>
+                <span id="prop-time-start" class="badge bg-dark">0.00s</span>
+              </div>
+              <div class="property-row">
+                <label>Duration</label>
+                <span id="prop-time-duration" class="badge bg-dark">5.00s</span>
+              </div>
+              <button id="btn-delete-clip" class="btn btn-danger btn-full">
+                <i data-lucide="trash-2"></i>
+                <span>Delete Clip</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Bottom Timeline Track Section -->
+    <footer class="editor-timeline-section">
+      
+      <!-- Timeline Control Bar -->
+      <div class="timeline-toolbar">
+        <div class="toolbar-left">
+          <button id="btn-timeline-split" class="btn btn-secondary btn-sm" title="Split Selected Clip at Playhead (S)">
+            <i data-lucide="scissors"></i>
+            <span>Split</span>
+          </button>
+          <button id="btn-timeline-delete" class="btn btn-secondary btn-sm" title="Delete Selected Clip (Delete/Backspace)">
+            <i data-lucide="trash-2"></i>
+            <span>Delete</span>
+          </button>
+        </div>
+        
+        <div class="toolbar-center">
+          <span class="active-item-hint" id="selected-clip-hint">No clip selected</span>
+        </div>
+        
+        <div class="toolbar-right">
+          <button id="btn-zoom-out" class="control-btn" title="Zoom Out Timeline">
+            <i data-lucide="zoom-out"></i>
+          </button>
+          <input type="range" id="timeline-zoom-slider" min="10" max="100" value="40" class="theme-slider zoom-slider">
+          <button id="btn-zoom-in" class="control-btn" title="Zoom In Timeline">
+            <i data-lucide="zoom-in"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Timeline Core Wrapper (Time Ruler & Track Containers) -->
+      <div class="timeline-editor-wrapper" id="timeline-scroll-container">
+        
+        <!-- Timeline Workspace Area -->
+        <div class="timeline-workspace" id="timeline-workspace-el">
+          
+          <!-- Timeline Ruler (Time increments display) -->
+          <div class="timeline-ruler" id="timeline-ruler-el">
+            <!-- Dynamic vertical ruler markers are added here -->
+          </div>
+          
+          <!-- Track Blocks Container -->
+          <div class="timeline-tracks-container" id="timeline-tracks-el">
+            
+            <!-- Track 1: Text overlays -->
+            <div class="timeline-track-row" data-track-id="text">
+              <div class="track-label">
+                <i data-lucide="type"></i>
+                <span>Text</span>
+              </div>
+              <div class="track-timeline-lane" data-track-id="text">
+                <!-- Text Clips go here -->
+              </div>
+            </div>
+
+            <!-- Track 2: Stickers overlays -->
+            <div class="timeline-track-row" data-track-id="stickers">
+              <div class="track-label">
+                <i data-lucide="smile"></i>
+                <span>Sticker</span>
+              </div>
+              <div class="track-timeline-lane" data-track-id="stickers">
+                <!-- Sticker Clips go here -->
+              </div>
+            </div>
+
+            <!-- Track 3: Video / Image assets (Primary Track) -->
+            <div class="timeline-track-row" data-track-id="video">
+              <div class="track-label">
+                <i data-lucide="image"></i>
+                <span>Video/Img</span>
+              </div>
+              <div class="track-timeline-lane" data-track-id="video">
+                <!-- Video & Image Clips go here -->
+              </div>
+            </div>
+
+            <!-- Overlay Track: Picture-in-Picture / Watermarks -->
+            <div class="timeline-track-row" data-track-id="overlay">
+              <div class="track-label" title="Picture-in-picture overlays. Drag clips on canvas to reposition.">
+                <i data-lucide="layers"></i>
+                <span>Overlay</span>
+              </div>
+              <div class="track-timeline-lane" data-track-id="overlay">
+                <!-- Overlay Clips go here -->
+              </div>
+            </div>
+
+            <!-- Track 4: Audio assets -->
+            <div class="timeline-track-row" data-track-id="audio">
+              <div class="track-label">
+                <i data-lucide="music"></i>
+                <span>Audio</span>
+              </div>
+              <div class="track-timeline-lane" data-track-id="audio">
+                <!-- Audio Clips go here -->
+              </div>
+            </div>
+
+          </div>
+          
+          <!-- Playhead red vertical scrubbing indicator line -->
+          <div class="timeline-playhead-line" id="timeline-playhead-line-el">
+            <div class="playhead-handle"></div>
+          </div>
+          
+        </div>
+      </div>
+    </footer>
+
+    <!-- Export Progression Overlay Modal -->
+    <div id="export-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <h3>Exporting Video</h3>
+        <div class="progress-bar-container">
+          <div id="export-progress-bar" class="progress-bar-fill"></div>
+        </div>
+        <div class="export-status">
+          <span id="export-percentage">0%</span>
+          <span id="export-status-text">Mixing audios and compiling frames...</span>
+        </div>
+        <p class="export-warning-note">Please do not close this browser tab while the rendering process runs.</p>
+        <div class="modal-actions">
+          <button id="btn-cancel-export" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+  <!-- Include Editor Script files -->
+  <script src="assets.js"></script>
+  <script src="firebase-db.js"></script>
+  <script src="timeline.js"></script>
+  <script src="renderer.js"></script>
+  <script src="exporter.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    // Initialize Lucide Icons after scripts load
+    lucide.createIcons();
+  </script>
+</body>
+</html>
