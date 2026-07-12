@@ -25,11 +25,22 @@ const App = {
 
     // 3. Set up event bindings
     this.bindUIEvents();
+    this.initQRShare();
+    this.initQRScanner();
     this.bindKeyboardShortcuts();
     this.bindInspectorEvents();
     
     // Set aspect ratio initially
     Renderer.updateAspectRatio('16:9');
+
+    // Route: check if visiting /qr to render fullscreen QR code
+    if (window.location.pathname.endsWith('/qr')) {
+      document.body.classList.add('qr-only');
+      setTimeout(() => {
+        const btnShareQr = document.getElementById('btn-share-qr');
+        if (btnShareQr) btnShareQr.click();
+      }, 200);
+    }
   },
 
   // Populate side libraries with presets defined in assets.js
@@ -716,6 +727,289 @@ const App = {
       mainCanvas.addEventListener('mouseleave', () => { draggingOverlay = null; });
     }
   },
+
+  initQRShare() {
+    const btnShareQr = document.getElementById('btn-share-qr');
+    const qrModal = document.getElementById('qr-modal');
+    const qrModalClose = document.getElementById('qr-modal-close');
+    const qrCodeImg = document.getElementById('qr-code-img');
+    const qrUrlText = document.getElementById('qr-url-text');
+    const btnDownloadQr = document.getElementById('btn-download-qr');
+    const btnCopyLink = document.getElementById('btn-copy-link');
+
+    if (!btnShareQr || !qrModal) return;
+
+    btnShareQr.addEventListener('click', () => {
+      const origin = window.location.origin;
+      const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
+      let base = isLocal ? 'https://mycut-asiasifs-projects.vercel.app' : origin;
+      
+      let path = window.location.pathname;
+      if (path.endsWith('/qr')) {
+        path = path.slice(0, -3);
+      }
+      if (path === '' || path === '/index.html') {
+        path = '/';
+      }
+      
+      const currentUrl = base + (path === '/' ? '' : path) + window.location.search;
+      qrUrlText.textContent = currentUrl;
+      
+      qrCodeImg.src = '';
+      qrCodeImg.alt = 'Generating QR Code...';
+      
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(currentUrl)}`;
+      
+      const tempImg = new Image();
+      tempImg.crossOrigin = 'anonymous';
+      tempImg.src = qrApiUrl;
+      
+      tempImg.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 300;
+        canvas.height = 300;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.drawImage(tempImg, 0, 0, 300, 300);
+        
+        const badgeSize = 64;
+        const x = (300 - badgeSize) / 2;
+        const y = (300 - badgeSize) / 2;
+        const radius = 12;
+        
+        ctx.fillStyle = '#0d0d11';
+        ctx.strokeStyle = '#00f2fe';
+        ctx.lineWidth = 2.5;
+        
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + badgeSize - radius, y);
+        ctx.quadraticCurveTo(x + badgeSize, y, x + badgeSize, y + radius);
+        ctx.lineTo(x + badgeSize, y + badgeSize - radius);
+        ctx.quadraticCurveTo(x + badgeSize, y + badgeSize, x + badgeSize - radius, y + badgeSize);
+        ctx.lineTo(x + radius, y + badgeSize);
+        ctx.quadraticCurveTo(x, y + badgeSize, x, y + badgeSize - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.fillStyle = '#00f2fe';
+        const cx = 132;
+        const cy = 141;
+        const cw = 22;
+        const ch = 18;
+        const cr = 4;
+        
+        ctx.beginPath();
+        ctx.moveTo(cx + cr, cy);
+        ctx.lineTo(cx + cw - cr, cy);
+        ctx.quadraticCurveTo(cx + cw, cy, cx + cw, cy + cr);
+        ctx.lineTo(cx + cw, cy + ch - cr);
+        ctx.quadraticCurveTo(cx + cw, cy + ch, cx + cw - cr, cy + ch);
+        ctx.lineTo(cx + cr, cy + ch);
+        ctx.quadraticCurveTo(cx, cy + ch, cx, cy + ch - cr);
+        ctx.lineTo(cx, cy + cr);
+        ctx.quadraticCurveTo(cx, cy, cx + cr, cy);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.moveTo(154, 146);
+        ctx.lineTo(164, 140);
+        ctx.lineTo(164, 160);
+        ctx.lineTo(154, 154);
+        ctx.closePath();
+        ctx.fill();
+        
+        try {
+          const qrDataUrl = canvas.toDataURL('image/png');
+          qrCodeImg.src = qrDataUrl;
+        } catch (e) {
+          console.warn('Canvas export failed, using raw QR code', e);
+          qrCodeImg.src = qrApiUrl;
+        }
+      };
+      
+      tempImg.onerror = () => {
+        qrCodeImg.src = qrApiUrl;
+      };
+
+      qrModal.classList.remove('hidden');
+    });
+
+    const closeModal = () => {
+      qrModal.classList.add('hidden');
+    };
+
+    if (qrModalClose) {
+      qrModalClose.addEventListener('click', closeModal);
+    }
+
+    qrModal.addEventListener('click', (e) => {
+      if (e.target === qrModal) {
+        closeModal();
+      }
+    });
+
+    if (btnDownloadQr) {
+      btnDownloadQr.addEventListener('click', () => {
+        if (!qrCodeImg.src || (!qrCodeImg.src.startsWith('data:image') && !qrCodeImg.src.startsWith('http'))) {
+          alert('QR Code is not ready yet.');
+          return;
+        }
+        
+        const a = document.createElement('a');
+        a.href = qrCodeImg.src;
+        a.download = 'antigravity-cut-share-qr.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    }
+
+    if (btnCopyLink) {
+      btnCopyLink.addEventListener('click', () => {
+        const link = qrUrlText.textContent;
+        navigator.clipboard.writeText(link).then(() => {
+          const originalText = btnCopyLink.innerHTML;
+          btnCopyLink.innerHTML = '<i data-lucide="check"></i><span>Link Copied!</span>';
+          if (window.lucide) window.lucide.createIcons();
+          
+          setTimeout(() => {
+            btnCopyLink.innerHTML = originalText;
+            if (window.lucide) window.lucide.createIcons();
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy: ', err);
+          alert('Could not copy link to clipboard.');
+        });
+      });
+    }
+  },
+
+  initQRScanner() {
+    const btnScanQr = document.getElementById('btn-scan-qr');
+    const qrScannerModal = document.getElementById('qr-scanner-modal');
+    const qrScannerModalClose = document.getElementById('qr-scanner-modal-close');
+    const qrCameraSelect = document.getElementById('qr-camera-select');
+    const qrScanResultContainer = document.getElementById('qr-scan-result-container');
+    const qrScanResultText = document.getElementById('qr-scan-result-text');
+    const btnVisitQrLink = document.getElementById('btn-visit-qr-link');
+
+    if (!btnScanQr || !qrScannerModal) return;
+
+    let html5QrCode = null;
+
+    const stopScanning = async () => {
+      if (html5QrCode && html5QrCode.isScanning) {
+        try {
+          await html5QrCode.stop();
+        } catch (e) {
+          console.warn("Failed to stop scanning:", e);
+        }
+      }
+      qrScannerModal.classList.add('hidden');
+      qrScanResultContainer.classList.add('hidden');
+    };
+
+    if (qrScannerModalClose) {
+      qrScannerModalClose.addEventListener('click', stopScanning);
+    }
+    
+    qrScannerModal.addEventListener('click', (e) => {
+      if (e.target === qrScannerModal) {
+        stopScanning();
+      }
+    });
+
+    btnScanQr.addEventListener('click', async () => {
+      qrScannerModal.classList.remove('hidden');
+      qrScanResultContainer.classList.add('hidden');
+      qrCameraSelect.innerHTML = '<option value="">Loading cameras...</option>';
+
+      try {
+        const devices = await Html5Qrcode.getCameras();
+        qrCameraSelect.innerHTML = '';
+
+        if (devices && devices.length > 0) {
+          devices.forEach((device, index) => {
+            const opt = document.createElement('option');
+            opt.value = device.id;
+            opt.textContent = device.label || `Camera ${index + 1}`;
+            qrCameraSelect.appendChild(opt);
+          });
+
+          if (html5QrCode) {
+            try {
+              if (html5QrCode.isScanning) {
+                await html5QrCode.stop();
+              }
+            } catch (err) {
+              console.warn(err);
+            }
+          }
+
+          html5QrCode = new Html5Qrcode("qr-reader");
+
+          const startScanning = (cameraId) => {
+            html5QrCode.start(
+              cameraId,
+              {
+                fps: 10,
+                qrbox: (width, height) => {
+                  const size = Math.min(width, height) * 0.6;
+                  return { width: size, height: size };
+                }
+              },
+              (decodedText) => {
+                qrScanResultText.textContent = decodedText;
+                qrScanResultContainer.classList.remove('hidden');
+
+                if (navigator.vibrate) {
+                  navigator.vibrate(200);
+                }
+
+                btnVisitQrLink.onclick = () => {
+                  let url = decodedText.trim();
+                  if (!/^https?:\/\//i.test(url)) {
+                    url = 'https://' + url;
+                  }
+                  window.open(url, '_blank');
+                  stopScanning();
+                };
+              },
+              (errorMessage) => {
+                // Ignore scanning errors
+              }
+            ).catch(err => {
+              console.error("Error starting camera scan:", err);
+            });
+          };
+
+          startScanning(qrCameraSelect.value);
+
+          qrCameraSelect.onchange = () => {
+            if (html5QrCode && html5QrCode.isScanning) {
+              html5QrCode.stop().then(() => {
+                startScanning(qrCameraSelect.value);
+              });
+            } else {
+              startScanning(qrCameraSelect.value);
+            }
+          };
+
+        } else {
+          qrCameraSelect.innerHTML = '<option value="">No cameras found.</option>';
+        }
+      } catch (err) {
+        console.error("Camera access error:", err);
+        qrCameraSelect.innerHTML = `<option value="">Access denied: ${err.message || err}</option>`;
+      }
+    });
+  },
+
   parseAiPrompt(promptText) {
     const textLower = promptText.toLowerCase().trim();
 

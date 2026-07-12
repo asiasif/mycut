@@ -14,12 +14,84 @@
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- HTML5 QR Code Library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
   
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <!-- App Wrapper -->
+  <!-- QR Code Share Modal -->
+  <div id="qr-modal" class="qr-modal-overlay hidden">
+    <div class="qr-modal-card">
+      <button id="qr-modal-close" class="qr-close-btn" title="Close">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="qr-modal-header">
+        <div class="qr-logo-badge">
+          <i data-lucide="video"></i>
+        </div>
+        <h2>Scan to Open</h2>
+        <p>Share <strong>AntigravityCut</strong> with anyone — just scan this QR code to launch the editor instantly.</p>
+      </div>
+      <div class="qr-code-wrapper">
+        <img id="qr-code-img" src="" alt="QR Code" />
+        <div class="qr-scan-ring"></div>
+      </div>
+      <div class="qr-url-display" id="qr-url-text"></div>
+      <div class="qr-actions">
+        <button id="btn-download-qr" class="btn btn-primary">
+          <i data-lucide="download"></i>
+          <span>Download QR</span>
+        </button>
+        <button id="btn-copy-link" class="btn btn-secondary">
+          <i data-lucide="copy"></i>
+          <span>Copy Link</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Code Scanner Modal -->
+  <div id="qr-scanner-modal" class="qr-scanner-modal-overlay hidden">
+    <div class="qr-scanner-card">
+      <button id="qr-scanner-modal-close" class="qr-close-btn" title="Close">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="qr-scanner-header">
+        <div class="qr-logo-badge">
+          <i data-lucide="scan-line"></i>
+        </div>
+        <h2>Scan QR Code</h2>
+        <p>Point your camera at a QR code to read its content.</p>
+      </div>
+      
+      <div class="qr-scanner-controls">
+        <label for="qr-camera-select">Select Camera:</label>
+        <select id="qr-camera-select" class="theme-select"></select>
+      </div>
+      
+      <div class="qr-scanner-viewport-wrapper">
+        <div id="qr-reader"></div>
+      </div>
+      
+      <div id="qr-scan-result-container" class="qr-result-container hidden">
+        <div class="qr-result-badge">
+          <i data-lucide="check"></i>
+          <span>Found QR Code!</span>
+        </div>
+        <div class="qr-result-url" id="qr-scan-result-text"></div>
+        <div class="qr-result-actions">
+          <button id="btn-visit-qr-link" class="btn btn-primary">
+            <i data-lucide="external-link"></i>
+            <span>Visit Link</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Global Loading Overlay -->
   <div id="canvas-loader" class="canvas-loader hidden">
     <div class="canvas-loader-inner">
@@ -51,6 +123,14 @@
       </div>
       
       <div class="header-actions">
+        <button id="btn-scan-qr" class="btn btn-secondary" title="Scan QR Code">
+          <i data-lucide="scan-line"></i>
+          <span>Scan QR</span>
+        </button>
+        <button id="btn-share-qr" class="btn btn-secondary" title="Share via QR Code">
+          <i data-lucide="qr-code"></i>
+          <span>Share QR</span>
+        </button>
         <button id="export-btn" class="btn btn-primary">
           <i data-lucide="download"></i>
           <span>Export Video</span>
