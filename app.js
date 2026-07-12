@@ -27,6 +27,7 @@ const App = {
     this.bindUIEvents();
     this.initQRShare();
     this.initQRScanner();
+    this.initCloudinarySettings();
     this.bindKeyboardShortcuts();
     this.bindInspectorEvents();
     
@@ -883,6 +884,126 @@ const App = {
     }
   },
 
+  initCloudinarySettings() {
+    const modal = document.getElementById('cloudinary-settings-modal');
+    const btnOpen = document.getElementById('btn-cloudinary-settings');
+    const btnClose = document.getElementById('cloudinary-settings-close');
+    const btnSave = document.getElementById('btn-save-cloudinary');
+    const btnTest = document.getElementById('btn-test-cloudinary');
+    const inputCloud = document.getElementById('input-cloud-name');
+    const inputPreset = document.getElementById('input-upload-preset');
+    const testResult = document.getElementById('cloudinary-test-result');
+
+    if (!modal || !btnOpen) return;
+
+    // Pre-fill with saved values
+    const savedCloud = localStorage.getItem('cld_cloud_name') || '';
+    const savedPreset = localStorage.getItem('cld_upload_preset') || '';
+    inputCloud.value = savedCloud;
+    inputPreset.value = savedPreset;
+
+    // Auto-open if not yet configured
+    if (!savedCloud || !savedPreset) {
+      setTimeout(() => {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        if (window.lucide) window.lucide.createIcons();
+      }, 800);
+    }
+
+    const openModal = () => {
+      inputCloud.value = localStorage.getItem('cld_cloud_name') || '';
+      inputPreset.value = localStorage.getItem('cld_upload_preset') || '';
+      testResult.style.display = 'none';
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      if (window.lucide) window.lucide.createIcons();
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    };
+
+    btnOpen.addEventListener('click', openModal);
+    btnClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    btnSave.addEventListener('click', () => {
+      const cloud = inputCloud.value.trim();
+      const preset = inputPreset.value.trim();
+      if (!cloud || !preset) {
+        alert('Please enter both Cloud Name and Upload Preset.');
+        return;
+      }
+      localStorage.setItem('cld_cloud_name', cloud);
+      localStorage.setItem('cld_upload_preset', preset);
+      closeModal();
+      // Brief confirmation flash on button
+      const orig = btnSave.innerHTML;
+      btnSave.innerHTML = '<i data-lucide="check"></i><span>Saved!</span>';
+      if (window.lucide) window.lucide.createIcons();
+      setTimeout(() => {
+        btnSave.innerHTML = orig;
+        if (window.lucide) window.lucide.createIcons();
+      }, 2000);
+    });
+
+    btnTest.addEventListener('click', async () => {
+      const cloud = inputCloud.value.trim();
+      const preset = inputPreset.value.trim();
+      if (!cloud || !preset) {
+        alert('Please enter both Cloud Name and Upload Preset before testing.');
+        return;
+      }
+
+      btnTest.disabled = true;
+      btnTest.innerHTML = '<i data-lucide="loader"></i><span>Testing...</span>';
+      if (window.lucide) window.lucide.createIcons();
+      testResult.style.display = 'none';
+
+      try {
+        // Create a tiny 1x1 pixel PNG blob as a test file
+        const pngBytes = new Uint8Array([
+          137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,
+          0,0,0,1,8,2,0,0,0,144,119,83,222,0,0,0,12,73,68,65,84,
+          8,215,99,248,207,192,0,0,0,2,0,1,227,221,37,180,0,0,0,
+          0,73,69,78,68,174,66,96,130
+        ]);
+        const testBlob = new Blob([pngBytes], { type: 'image/png' });
+        const formData = new FormData();
+        formData.append('file', testBlob, 'test.png');
+        formData.append('upload_preset', preset);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.secure_url) {
+          testResult.style.display = 'block';
+          testResult.style.background = 'rgba(0,255,120,0.08)';
+          testResult.style.border = '1px solid rgba(0,255,120,0.3)';
+          testResult.style.color = '#00ff78';
+          testResult.innerHTML = '✅ Connection successful! Your credentials are working.';
+        } else {
+          throw new Error(data.error?.message || 'Upload failed');
+        }
+      } catch (err) {
+        testResult.style.display = 'block';
+        testResult.style.background = 'rgba(255,60,60,0.08)';
+        testResult.style.border = '1px solid rgba(255,60,60,0.3)';
+        testResult.style.color = '#ff6060';
+        testResult.innerHTML = `❌ Failed: ${err.message}`;
+      } finally {
+        btnTest.disabled = false;
+        btnTest.innerHTML = '<i data-lucide="zap"></i><span>Test Connection</span>';
+        if (window.lucide) window.lucide.createIcons();
+      }
+    });
+  },
+
   initQRScanner() {
     const btnScanQr = document.getElementById('btn-scan-qr');
     const qrScannerModal = document.getElementById('qr-scanner-modal');
@@ -1151,8 +1272,13 @@ const App = {
   },
 
   async uploadToCloudinary(file) {
-    const cloudName = 'ej9q3ihg';
-    const presetName = 'unsigned_preset';
+    // Read credentials from localStorage (set via Settings modal), fall back to defaults
+    const cloudName = localStorage.getItem('cld_cloud_name') || 'ej9q3ihg';
+    const presetName = localStorage.getItem('cld_upload_preset') || 'unsigned_preset';
+    
+    if (!cloudName || !presetName) {
+      throw new Error('Cloudinary credentials not configured. Click the Settings button to enter your Cloud Name and Upload Preset.');
+    }
     
     let resourceType = 'auto';
     if (file.type.startsWith('image/')) {

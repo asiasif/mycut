@@ -154,6 +154,10 @@
           <i data-lucide="qr-code"></i>
           <span>Share QR</span>
         </button>
+        <button id="btn-cloudinary-settings" class="btn btn-secondary" title="Cloudinary Settings">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </button>
         <button id="export-btn" class="btn btn-primary">
           <i data-lucide="download"></i>
           <span>Export Video</span>
@@ -782,6 +786,52 @@
         <p class="export-warning-note">Please do not close this browser tab while the rendering process runs.</p>
         <div class="modal-actions">
           <button id="btn-cancel-export" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cloudinary Settings Modal -->
+    <div id="cloudinary-settings-modal" class="qr-modal-overlay hidden" style="display:none">
+      <div class="qr-modal-card" style="width:480px;">
+        <button id="cloudinary-settings-close" class="qr-close-btn" title="Close">
+          <i data-lucide="x"></i>
+        </button>
+        <div class="qr-modal-header">
+          <div class="qr-logo-badge">
+            <i data-lucide="cloud"></i>
+          </div>
+          <h2>Cloudinary Settings</h2>
+          <p>Enter your Cloudinary credentials to enable media uploads. These are saved locally in your browser.</p>
+        </div>
+
+        <div style="text-align:left; margin-top:16px;">
+          <div style="margin-bottom:14px;">
+            <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;">Cloud Name</label>
+            <input id="input-cloud-name" type="text" class="theme-textarea" style="height:36px;padding:8px 10px;" placeholder="e.g. my-cloud-name">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;">Upload Preset <span style="color:#00f2fe;">(must be set to Unsigned)</span></label>
+            <input id="input-upload-preset" type="text" class="theme-textarea" style="height:36px;padding:8px 10px;" placeholder="e.g. my_unsigned_preset">
+          </div>
+          <div style="background:rgba(0,242,254,0.05);border:1px solid rgba(0,242,254,0.15);border-radius:8px;padding:12px;margin-bottom:16px;font-size:11px;color:var(--text-muted);line-height:1.6;">
+            <strong style="color:var(--text-primary);">How to get these:</strong><br>
+            1. Go to <a href="https://console.cloudinary.com" target="_blank" style="color:#00f2fe;">console.cloudinary.com</a><br>
+            2. Your <strong>Cloud Name</strong> is shown on the Dashboard<br>
+            3. Go to <strong>Settings → Upload → Upload presets</strong><br>
+            4. Create a new preset, set mode to <strong>Unsigned</strong>, and copy its name
+          </div>
+          <div id="cloudinary-test-result" style="display:none;padding:10px;border-radius:8px;margin-bottom:14px;font-size:12px;"></div>
+        </div>
+
+        <div class="qr-actions" style="gap:10px;">
+          <button id="btn-test-cloudinary" class="btn btn-secondary" style="flex:1;">
+            <i data-lucide="zap"></i>
+            <span>Test Connection</span>
+          </button>
+          <button id="btn-save-cloudinary" class="btn btn-primary" style="flex:1;">
+            <i data-lucide="save"></i>
+            <span>Save Settings</span>
+          </button>
         </div>
       </div>
     </div>

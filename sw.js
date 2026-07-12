@@ -3,7 +3,7 @@
    Caches app shell for offline support & PWA install
    ========================================== */
 
-const CACHE_NAME = 'antigravity-cut-v1';
+const CACHE_NAME = 'antigravity-cut-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
