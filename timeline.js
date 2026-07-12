@@ -334,6 +334,7 @@ const Timeline = {
       text: document.querySelector('.track-timeline-lane[data-track-id="text"]'),
       stickers: document.querySelector('.track-timeline-lane[data-track-id="stickers"]'),
       video: document.querySelector('.track-timeline-lane[data-track-id="video"]'),
+      overlay: document.querySelector('.track-timeline-lane[data-track-id="overlay"]'),
       audio: document.querySelector('.track-timeline-lane[data-track-id="audio"]')
     };
 
