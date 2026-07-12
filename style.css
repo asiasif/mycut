@@ -1,6 +1,15 @@
 /* ==========================================
    Antigravity Cut - Design System Stylesheet
    ========================================== */
+
+/* ==========================================
+   GLOBAL UTILITY: .hidden — MUST be defined
+   Fixes: modals showing on page load on mobile
+   ========================================== */
+.hidden {
+  display: none !important;
+}
+
 /* Variables & Base Design Tokens */
 :root {
   --bg-main: #060608;

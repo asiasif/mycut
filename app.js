@@ -829,10 +829,12 @@ const App = {
       };
 
       qrModal.classList.remove('hidden');
+      qrModal.style.display = 'flex';
     });
 
     const closeModal = () => {
       qrModal.classList.add('hidden');
+      qrModal.style.display = 'none';
     };
 
     if (qrModalClose) {
@@ -903,6 +905,7 @@ const App = {
         }
       }
       qrScannerModal.classList.add('hidden');
+      qrScannerModal.style.display = 'none';
       qrScanResultContainer.classList.add('hidden');
     };
 
@@ -918,6 +921,7 @@ const App = {
 
     btnScanQr.addEventListener('click', async () => {
       qrScannerModal.classList.remove('hidden');
+      qrScannerModal.style.display = 'flex';
       qrScanResultContainer.classList.add('hidden');
       qrCameraSelect.innerHTML = '<option value="">Loading cameras...</option>';
 
