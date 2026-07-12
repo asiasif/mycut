@@ -742,7 +742,7 @@ const App = {
     btnShareQr.addEventListener('click', () => {
       const origin = window.location.origin;
       const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
-      let base = isLocal ? 'https://mycut-asiasifs-projects.vercel.app' : origin;
+      let base = isLocal ? 'https://mycut-nine.vercel.app' : origin;
       
       let path = window.location.pathname;
       if (path.endsWith('/qr')) {
