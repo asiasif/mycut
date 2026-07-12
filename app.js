@@ -1197,7 +1197,7 @@ const App = {
       const chunk = file.slice(start, end);
       
       const formData = new FormData();
-      formData.append('file', chunk);
+      formData.append('file', chunk, file.name);
       formData.append('upload_preset', presetName);
       
       // Update loading overlay text to display upload progress
