@@ -1163,21 +1163,71 @@ const App = {
     
     const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
     
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', presetName);
+    const chunkSize = 6 * 1024 * 1024; // 6MB chunk size (Cloudinary requires at least 5MB for chunked uploads)
+    const totalSize = file.size;
     
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formData
-    });
-    
-    if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.error?.message || 'Upload failed');
+    // If the file is smaller than or equal to chunk size, perform a standard direct upload
+    if (totalSize <= chunkSize) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', presetName);
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || 'Upload failed');
+      }
+      
+      return await response.json();
     }
     
-    return await response.json();
+    // For larger files, perform sequential chunked upload
+    const uploadId = 'cloud-chunk-' + Date.now() + '-' + Math.floor(Math.random() * 1000000);
+    let start = 0;
+    let lastResponseData = null;
+    
+    const loader = document.getElementById('canvas-loader');
+    
+    while (start < totalSize) {
+      const end = Math.min(start + chunkSize, totalSize);
+      const chunk = file.slice(start, end);
+      
+      const formData = new FormData();
+      formData.append('file', chunk);
+      formData.append('upload_preset', presetName);
+      
+      // Update loading overlay text to display upload progress
+      if (loader) {
+        const percent = Math.round((start / totalSize) * 100);
+        const span = loader.querySelector('span');
+        if (span) {
+          span.textContent = `Uploading large file: ${percent}% complete...`;
+        }
+      }
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-Unique-Upload-Id': uploadId,
+          'Content-Range': `bytes ${start}-${end - 1}/${totalSize}`
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || `Chunked upload failed at ${start} bytes`);
+      }
+      
+      lastResponseData = await response.json();
+      start = end;
+    }
+    
+    return lastResponseData;
   },
   async handleLocalMediaUploads(files) {
     if (!files || files.length === 0) return;
