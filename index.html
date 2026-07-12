@@ -2,11 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Antigravity Cut - Premium Web Video Editor</title>
   <!-- SEO & Meta -->
   <meta name="description" content="A premium web-based video editor with multi-track timelines, filters, transitions, text overlays, and audio mix exports.">
-  
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- PWA Theme & Status Bar -->
+  <meta name="theme-color" content="#060608">
+  <meta name="msapplication-TileColor" content="#060608">
+
+  <!-- iOS PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AntigravityCut">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+  <!-- Android PWA Support -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="AntigravityCut">
+
+  <!-- Open Graph (for sharing) -->
+  <meta property="og:title" content="Antigravity Cut - Premium Web Video Editor">
+  <meta property="og:description" content="Edit videos in your browser. Multi-track timeline, filters, transitions, AI tools.">
+  <meta property="og:url" content="https://mycut-nine.vercel.app">
+  <meta property="og:type" content="website">
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -780,6 +803,17 @@
   <script>
     // Initialize Lucide Icons after scripts load
     lucide.createIcons();
+  </script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW registered:', reg.scope))
+          .catch(err => console.warn('SW registration failed:', err));
+      });
+    }
   </script>
 </body>
 </html>

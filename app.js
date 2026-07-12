@@ -33,14 +33,6 @@ const App = {
     // Set aspect ratio initially
     Renderer.updateAspectRatio('16:9');
 
-    // Route: check if visiting /qr to render fullscreen QR code
-    if (window.location.pathname.endsWith('/qr')) {
-      document.body.classList.add('qr-only');
-      setTimeout(() => {
-        const btnShareQr = document.getElementById('btn-share-qr');
-        if (btnShareQr) btnShareQr.click();
-      }, 200);
-    }
   },
 
   // Populate side libraries with presets defined in assets.js
